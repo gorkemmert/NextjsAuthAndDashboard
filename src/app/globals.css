@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import 'devextreme/dist/css/dx.light.css';
+.dx-datagrid-rowsview .dx-row:nth-child(even) {
+  background-color: #849DB5; /* Light grey for even rows */
+}
+
+.dx-datagrid-rowsview .dx-row:nth-child(odd) {
+  background-color: #f5f5f5; /* White for odd rows */
+}
+
+html,
+body,
+:root{
+  padding: 0;
+}
