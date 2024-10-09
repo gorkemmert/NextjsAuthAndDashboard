@@ -14,6 +14,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import { CircularProgress } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -189,6 +190,7 @@ const Page = () => {
     }
   )
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false)
   const [xBas, setXBas] = useState<any>(dayjs(requestBody.xBas_Tar));
   const [xBit, setxBit] = useState<any>(dayjs(requestBody.xBit_Tar));
   const [xSistem, setXSistem] = useState<any>(dayjs(requestBody.xSistem_Tarihi));
@@ -199,6 +201,7 @@ const Page = () => {
   };
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(
         'https://frontapi.rmosweb.com/api/Procedure/StpRmforKlasik_2', 
@@ -208,16 +211,18 @@ const Page = () => {
       setData(response.data?.value);
     } catch (error) {
       console.error('Veri alma hatası:', error);
-    } 
+    } finally {
+      setLoading(false); // Loading durumunu durdur
+    }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    fetchData();
+      fetchData()
   }, [requestBody]);
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [requestBody]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -239,6 +244,22 @@ const Page = () => {
     }));
     setOpen(false);
   };
+
+  if(loading){
+    return(
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // Full height
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
+    
+  }
   
   return (
     <div className='flex flex-col w-full'>

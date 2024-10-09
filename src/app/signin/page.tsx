@@ -4,19 +4,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 // import { TextField, Button, Container } from '@mui/material';
-import { Box, Button, Container, TextField, Typography} from '@mui/material';
+import { Box, Button, Container, TextField, Typography, CircularProgress} from '@mui/material';
 import Image from 'next/image';
 import axios from 'axios';
 
 const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // Yeni loading durumu
   const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const response = await axios.post('/api/auth',{
         username,
@@ -33,6 +35,8 @@ const SignIn = () => {
     } catch (err) {
       console.log(err);
       setError("Giriş Başarızız.Lütfen bilgilerinizi kontrol edin")
+    }  finally {
+      setLoading(false); // Loading durumunu durdur
     }
   };
 
@@ -105,41 +109,11 @@ const SignIn = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-        Sign In
+        {loading ? <CircularProgress size={24} /> : 'Sign In'}
       </Button>
       {error && <p className='text-red-400'>{error}</p>}
     </Container>
   </Box>
-    // <Container maxWidth="sm" className="flex flex-col items-center mt-10">
-    //   <h2 className="text-2xl font-bold mb-6">Sign In</h2>
-    //   <TextField
-    //     label="Username"
-    //     variant="outlined"
-    //     fullWidth
-    //     margin="normal"
-    //     value={username}
-    //     onChange={(e) => setUsername(e.target.value)}
-    //   />
-    //   <TextField
-    //     label="Password"
-    //     type="password"
-    //     variant="outlined"
-    //     fullWidth
-    //     margin="normal"
-    //     value={password}
-    //     onChange={(e) => setPassword(e.target.value)}
-    //   />
-    //   <Button
-    //     variant="contained"
-    //     color="primary"
-    //     fullWidth
-    //     className="mt-4"
-    //     onClick={handleSignIn}
-    //   >
-    //     Sign In
-    //   </Button>
-    //   {error && <p>{error}</p>}
-    // </Container>
   );
 };
 

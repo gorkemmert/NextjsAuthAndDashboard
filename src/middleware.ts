@@ -16,5 +16,5 @@ export function middleware(req: NextRequest){
 
  // Middleware çalışacağı sayfalar
  export const config = {
-    matcher: ['/'],
+    matcher: ['/', '/blacklist'],
 };
