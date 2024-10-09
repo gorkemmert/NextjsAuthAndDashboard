@@ -1,4 +1,3 @@
-// components/AuthProvider.tsx
 'use client';
 
 import axios from 'axios';
@@ -10,15 +9,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('access_token');
-    if (storedToken) {
-      setToken(storedToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-    }
+    // Tarayıcıda çalıştığını doğrula (SSR hatasını engellemek için)
+    if (typeof window !== 'undefined') {
+      // Cookie'den token'ı oku
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+      };
 
-    // Token değiştiğinde axios ayarını güncelle
-   
-  }, [localStorage.getItem('access_token')]);
+      const storedToken = getCookie('token');
+      if (storedToken) {
+        setToken(storedToken);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+      }
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ token }}>
