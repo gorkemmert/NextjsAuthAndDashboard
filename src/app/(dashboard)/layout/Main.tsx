@@ -1,6 +1,7 @@
 'use client';
 import { styled } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
+import { usePathname} from 'next/navigation'
 import Image from 'next/image';
 
 const drawerWidth = 240;
@@ -38,6 +39,8 @@ interface MainProps {
 }
 
 export default function Main({ open, children }: MainProps) {
+  const pathname = usePathname()
+
   return (
   <MainStyled open={open}>
     <DrawerHeader/>
@@ -53,9 +56,17 @@ export default function Main({ open, children }: MainProps) {
         }}
       >
         <Image src="/calculate.png" alt="Logo" width={40} height={40} />
-        <Typography className='font-bold text-lg'  color="#111827">
+        {pathname === '/' && (
+          <Typography className='font-bold text-lg'  color="#111827">
           Forecast
-        </Typography>
+          </Typography>
+        )}
+        {pathname === '/blacklist' && (
+          <Typography className='font-bold text-lg'  color="#111827">
+          Blacklist
+          </Typography>
+        )}
+        
       </Box>
     {children}
   </MainStyled>

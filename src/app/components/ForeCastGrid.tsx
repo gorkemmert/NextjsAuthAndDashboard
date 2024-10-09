@@ -1,8 +1,8 @@
-// components/DevDataGrid.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useEffect, useState } from 'react';
 
-import { Column, DataGrid,Paging, Pager, Export, FilterRow, SearchPanel, HeaderFilter } from 'devextreme-react/data-grid';
+import { Column, DataGrid,Paging, Pager, Export, FilterRow, SearchPanel, HeaderFilter, Summary, TotalItem } from 'devextreme-react/data-grid';
 
 type DataType = {
   Tarih: string;                // Tarih, ISO 8601 formatında bir string
@@ -119,7 +119,7 @@ type Props = {
 
 
 const allowedPageSizes = [6, 12, 20];
-const DevDataGrid: React.FC<Props> = ({ data }) => {
+const ForeCastGrid: React.FC<Props> = ({ data }) => {
   const [ dataSource , setDataSource ] = useState<DataType[]>(data)
   useEffect(()=>{
     setDataSource(data);
@@ -129,6 +129,8 @@ const DevDataGrid: React.FC<Props> = ({ data }) => {
   const customizeText = (cellInfo: { value : number}) => {
     return `%${(cellInfo.value*100).toFixed(2)}`
   }
+
+  const customizeText2 = (itemInfo: any) => `${itemInfo?.value}`
 
 
   return (
@@ -149,11 +151,65 @@ const DevDataGrid: React.FC<Props> = ({ data }) => {
         <Column dataField="Free" dataType="number" caption="Free"/>
         <Column dataField="Toplam Kişi" dataType="number" caption="Top Kişi"/>
         <Column dataField="Pax" dataType="number" caption="Pax"/>
-        <Column dataField="Yuzde%(Net)" dataType="number" caption="Net(%)" customizeText={customizeText}/>
+        <Column dataField="Yuzde%(Net)" dataType="number" caption="Net(%)" format='percent'/>
         <Column dataField="Son Durum" dataType="number" caption="Son Durum"/>
         <Column dataField="Package Tutar" dataType="number" caption="Package"/>
         <Column dataField="Tarih" dataType="date" caption="Tarih"/>
         <Column dataField="Pax(Y/C2)" dataType="number" caption="Pax(Y/C2)"/>
+        <Summary>
+          <TotalItem
+            column="Mevcut"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Oda"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Yetişkin"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Çocuk"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Free"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Toplam Kişi"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Pax"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Yuzde%(Net)"
+            summaryType="sum"
+            customizeText={customizeText}
+            valueFormat="percent"
+            />
+            <TotalItem
+            column="Son Durum"
+            summaryType="sum"
+            customizeText={customizeText2}
+            />
+            <TotalItem
+            column="Package Tutar"
+            summaryType="sum"
+            customizeText={customizeText2}
+        
+            />
+        </Summary>
         <Export enabled allowExportSelectedData />
         <Paging defaultPageSize={12} />
         <Pager showPageSizeSelector showInfo allowedPageSizes={allowedPageSizes} />
@@ -162,4 +218,4 @@ const DevDataGrid: React.FC<Props> = ({ data }) => {
   );
 };
 
-export default DevDataGrid;
+export default ForeCastGrid;

@@ -3,23 +3,28 @@
 'use client';
 import React from 'react';
 import { useEffect, useState } from 'react';
-import DevDataGrid from '../components/DevDataGrid';
+import ForeCastGrid from '../components/ForeCastGrid';
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+
 
 // import FilterForm from '../components/FilterForm';
 import axios from 'axios';
+import ChartForeCast from '../components/Chart';
 
 
 type DataType = {
@@ -154,48 +159,16 @@ interface RequestBody {
   cev_01: any | null;            // CEV 01 (herhangi bir tip veya null)
 }
 
-// let body: RequestBody = {
-//   "db_Id": 9,
-//   "xRez_Sirket": 9,
-//   "xBas_Tar": "2024-06-01",
-//   "xBit_Tar": "2024-06-10",
-//   "xtip": 1,
-//   "kon1": "ALL",
-//   "kon2": "BB",
-//   "xchkFis_Fazla_otel_10": 0,
-//   "bas_Yil": 2022,
-//   "bit_Yil": 2022,
-//   "fisrci_Kapalioda_10": 0,
-//   "xRez_C_W": "C",
-//   "xSistem_Tarihi": "2024-01-01",
-//   "xAlis_Tarihi": "2024-01-01",
-//   "sistem_Bas1": "2020-01-01",
-//   "sistem_Bit1": "2029-01-01",
-//   "pmdahil_10": 0,
-//   "tip_1": "001",
-//   "xFis_Bela_tutar_10": 0,
-//   "trace_Dus_10": 0,
-//   "cev_01": null
-// }
-
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
-    padding: theme.spacing(2),
-  },
-  '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
-  },
-}));
-
 
 const Page = () => {
+  const [value, setValue] = useState('1');
   const [data, setData] = useState<DataType[]>([]);
   const [requestBody, setRequestBody]= useState<RequestBody>(
     {
       "db_Id": 9,
       "xRez_Sirket": 9,
       "xBas_Tar": "2024-06-01",
-      "xBit_Tar": "2024-06-10",
+      "xBit_Tar": "2024-06-16",
       "xtip": 1,
       "kon1": "ALL",
       "kon2": "BB",
@@ -216,10 +189,14 @@ const Page = () => {
     }
   )
   const [open, setOpen] = useState(false);
-  const [xBas, setXBas] = useState<string>(requestBody.xBas_Tar);
-  const [xBit, setxBit] = useState<string>(requestBody.xBit_Tar);
-  const [xSistem, setXSistem] = useState<string>(requestBody.xSistem_Tarihi);
-  const [xAlis, setXAlis] = useState<string>(requestBody.xAlis_Tarihi);
+  const [xBas, setXBas] = useState<any>(dayjs(requestBody.xBas_Tar));
+  const [xBit, setxBit] = useState<any>(dayjs(requestBody.xBit_Tar));
+  const [xSistem, setXSistem] = useState<any>(dayjs(requestBody.xSistem_Tarihi));
+  const [xAlis, setXAlis] = useState<any>(dayjs(requestBody.xAlis_Tarihi));
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
 
   const fetchData = async () => {
     try {
@@ -238,6 +215,10 @@ const Page = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [requestBody]);
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -245,6 +226,8 @@ const Page = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+
 
   const handleSave = () => {
     setRequestBody((prevState) => ({
@@ -254,80 +237,106 @@ const Page = () => {
       xSistem_Tarihi: xSistem, 
       xAlis_Tarihi: xAlis
     }));
-    fetchData();
     setOpen(false);
   };
   
   return (
-    <div className='flex w-full p-6'>
-      <div className='mt-10'>
-        <div className='flex place-content-end mb-2'>
-          <Button variant="outlined" onClick={handleClickOpen}>
-            <FilterListIcon />
-          </Button>
-        </div>
-      <DevDataGrid data={data}/>
-      </div>
-      <div>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Filtre
-        </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={(theme) => ({
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: theme.palette.grey[500],
-          })}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent dividers>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DemoContainer components={['DatePicker']}>
-            <div className='flex flex-col gap-3'>
-              <DatePicker 
-                label="Başlangıç Tarihi" 
-                views={['day', 'month', 'year']}
-                onChange={(newValue: any) => setXBas(newValue)}
-                format="DD/MM/YYYY" 
-              />
-              <DatePicker 
-                label="Bitiş Tarihi" 
-                views={['year', 'month', 'day']}
-                onChange={(newValue: any) => setxBit(newValue)}
-                format="DD/MM/YYYY" 
-              />
-              <DatePicker 
-                label="Sistem Tarihi" 
-                views={['year', 'month', 'day']}
-                onChange={(newValue: any) => setXSistem(newValue)}
-                format="DD/MM/YYYY" 
-              />
-              <DatePicker 
-                label="Alış Tarihi" 
-                views={['year', 'month', 'day']}
-                onChange={(newValue: any) => setXAlis(newValue)}
-                format="DD/MM/YYYY" 
-              />
+    <div className='flex flex-col w-full'>
+      <TabContext value={value}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <TabList onChange={handleChange}>
+            <Tab className='font-bold text-xs' label="Forecast List" value="1" />
+            <Tab className='font-bold text-xs' label="Forecast Grafik" value="2" />
+          </TabList>
+        </Box>
+        <TabPanel value="1">
+          <div>
+          {data.length>1 && (
+            <div className='flex place-content-end mb-2'>
+            <Button variant="outlined" onClick={handleClickOpen}>
+              <FilterListIcon />
+            </Button>
             </div>
-          </DemoContainer>
-        </LocalizationProvider>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleSave}>
-            Save
-          </Button>
-        </DialogActions>
-      </BootstrapDialog>
-      </div>
+          )}
+        <ForeCastGrid data={data}/>
+          </div>
+          <div>
+          <Dialog
+            fullWidth
+            
+            onClose={handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={open}
+          >
+            <DialogTitle className='self-center'>
+              Filtre
+            </DialogTitle>
+            <IconButton
+              aria-label="close"
+              onClick={handleClose}
+              sx={(theme) => ({
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: theme.palette.grey[500],
+              })}
+            >
+              <CloseIcon />
+            </IconButton>
+            <div>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              
+                <div className='flex flex-col gap-3 place-items-center'>
+                  <div className='flex -mx-6 gap-1'>
+                    <div className='flex'>
+                      <DatePicker 
+                        value={xBas}
+                        label="Başlangıç Tarihi" 
+                        onChange={(newValue: any) => setXBas(newValue)}
+                        format="DD/MM/YYYY" 
+                      />
+                    </div>
+                    <div className='flex'>
+                      <DatePicker 
+                        value={xBit}
+                        label="Bitiş Tarihi" 
+                        onChange={(newValue: any) => setxBit(newValue)}
+                        format="DD/MM/YYYY" 
+                      />
+                    </div>
+                  </div>
+                  <div className='flex -mx-6 gap-1'>
+                    <DatePicker 
+                      value={xSistem}
+                      label="Sistem Tarihi" 
+                      onChange={(newValue: any) => setXSistem(newValue)}
+                      format="DD/MM/YYYY" 
+                    />
+                    <DatePicker 
+                      value={xAlis}
+                      label="Alış Tarihi" 
+                      onChange={(newValue: any) => setXAlis(newValue)}
+                      format="DD/MM/YYYY" 
+                    />
+                  </div>
+                </div>
+            
+            </LocalizationProvider>
+            </div>
+            <DialogActions>
+              <Button autoFocus onClick={handleSave}>
+                Save
+              </Button>
+            </DialogActions>
+          </Dialog>
+          </div>
+        </TabPanel>
+        <TabPanel value="2">
+          <div className='flex w-full'>
+          <ChartForeCast data={data}/>
+          </div>
+        </TabPanel>
+      </TabContext>
     </div>
   )
 }
