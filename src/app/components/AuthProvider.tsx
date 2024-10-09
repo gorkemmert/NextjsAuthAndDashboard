@@ -15,7 +15,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setToken(storedToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
-  }, []);
+
+    // Token değiştiğinde axios ayarını güncelle
+   
+  }, [localStorage.getItem('access_token')]);
 
   return (
     <AuthContext.Provider value={{ token }}>
